@@ -3,391 +3,659 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Serrum ArtHandling</title>
-    
-    <!-- Import Tailwind CSS untuk Styling -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Import React, ReactDOM, dan Babel agar bisa jalan di browser biasa (tanpa Node.js) -->
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    
-    <!-- Import Font Pop Art -->
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700;900&display=swap" rel="stylesheet">
-    
+    <title>SERRUM ARTHANDLING - Simulasi Logistik Seni</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Space Grotesk', sans-serif;
-            background-color: #fdf2f8; /* fallback warna bg */
+        /* RESET & RETRO POP STYLING */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Press Start 2P', cursive;
         }
+
+        body {
+            background-color: #ffe600; /* Kuning Pop Art */
+            background-image: radial-gradient(#000 2px, transparent 2px);
+            background-size: 30px 30px;
+            color: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            margin: 20px;
+            position: relative;
+        }
+
+        /* NEO-BRUTALISM UI BOXES */
+        .retro-box {
+            background-color: #fff;
+            border: 6px solid #000;
+            box-shadow: 12px 12px 0px #000;
+            padding: 30px;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .header-bar {
+            background-color: #ff007f; /* Magenta */
+            color: #fff;
+            padding: 15px;
+            border: 6px solid #000;
+            box-shadow: 8px 8px 0px #000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        h1, h2, h3 {
+            text-transform: uppercase;
+            line-height: 1.5;
+        }
+
+        h1 {
+            color: #00ffff; /* Cyan */
+            text-shadow: 4px 4px 0px #000;
+            font-size: 32px;
+            margin-bottom: 20px;
+            text-align: center;
+            letter-spacing: 2px;
+        }
+
+        p {
+            font-size: 12px;
+            line-height: 1.8;
+            margin-bottom: 15px;
+        }
+
+        /* LOGO STYLING */
+        .logo-img {
+            max-width: 250px;
+            display: block;
+            margin: 0 auto 20px;
+            /* Efek ini menghilangkan background putih pada gambar jpeg/png */
+            mix-blend-mode: multiply; 
+        }
+
+        /* BUTTONS */
+        .btn {
+            background-color: #00ffff;
+            color: #000;
+            border: 4px solid #000;
+            padding: 15px 20px;
+            font-size: 14px;
+            cursor: pointer;
+            box-shadow: 6px 6px 0px #000;
+            text-transform: uppercase;
+            transition: all 0.1s ease-in-out;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn:hover {
+            background-color: #ff007f;
+            color: #fff;
+        }
+
+        .btn:active {
+            transform: translate(6px, 6px);
+            box-shadow: 0px 0px 0px #000;
+        }
+
+        .btn-green { background-color: #00ff00; }
+        .btn-green:hover { background-color: #00cc00; color: #000; }
+        
+        .btn-red { background-color: #ff0000; color: #fff; }
+        .btn-red:hover { background-color: #cc0000; }
+
+        .btn-small { padding: 8px 12px; font-size: 10px; box-shadow: 4px 4px 0px #000; }
+
+        /* SCREENS */
+        .screen { display: none; }
+        .screen.active { display: block; animation: popIn 0.3s ease-out forwards; }
+
+        @keyframes popIn {
+            0% { transform: scale(0.9); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        /* JOB BOARD */
+        .job-progress {
+            background: #000;
+            color: #00ffff;
+            padding: 10px;
+            margin-bottom: 15px;
+            font-size: 12px;
+            text-align: center;
+            border: 4px solid #fff;
+        }
+
+        .job-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+            max-height: 50vh;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        /* Scrollbar custom untuk Job Grid */
+        .job-grid::-webkit-scrollbar { width: 10px; }
+        .job-grid::-webkit-scrollbar-track { background: #eee; border: 2px solid #000; }
+        .job-grid::-webkit-scrollbar-thumb { background: #ff007f; border: 2px solid #000; }
+
+        .job-card {
+            background-color: #fff;
+            border: 4px solid #000;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 6px 6px 0px #000;
+            transition: transform 0.2s;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .job-card:hover { transform: translateY(-5px); }
+        .job-icon { font-size: 50px; margin: 10px 0; }
+
+        /* PACKING STATION */
+        .packing-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #e0f7fa;
+            border: 4px solid #000;
+            padding: 20px;
+            margin-bottom: 20px;
+            position: relative;
+            min-height: 250px;
+            justify-content: center;
+        }
+
+        .art-display { font-size: 100px; position: relative; z-index: 10; }
+
+        .layer-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 120px;
+            opacity: 0.8;
+            pointer-events: none;
+        }
+
+        .materials-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .material-btn {
+            background-color: #fff;
+            border: 4px solid #000;
+            padding: 10px;
+            cursor: pointer;
+            text-align: center;
+            font-size: 10px;
+            box-shadow: 4px 4px 0px #000;
+        }
+        .material-btn:active { transform: translate(4px, 4px); box-shadow: 0px 0px 0px #000; }
+        .material-btn.selected { background-color: #000; color: #fff; }
+
+        .status-logs {
+            background: #000;
+            color: #00ff00;
+            padding: 10px;
+            font-size: 10px;
+            height: 100px;
+            overflow-y: auto;
+            border: 4px solid #fff;
+            margin-bottom: 20px;
+        }
+
+        /* UTILS */
+        .text-center { text-align: center; }
+        .mt-20 { margin-top: 20px; }
+        .flex-between { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+
     </style>
 </head>
 <body>
-    <!-- Wadah tempat Game muncul -->
-    <div id="root"></div>
 
-    <!-- Tipe script 'text/babel' agar browser paham ini kode React -->
-    <!-- Tambahan data-type="module" sangat penting untuk mencegah error 'Cannot use import statement' di beberapa environment -->
-    <script type="text/babel" data-type="module">
-        const { useState, useEffect } = React;
+<div class="container">
+    
+    <!-- HEADER STATUS -->
+    <div id="header-status" class="header-bar" style="display: none;">
+        <div style="flex-grow: 1; display: flex; justify-content: space-between; margin-right: 15px;">
+            <div>💰 Dana: $<span id="ui-money">1000</span></div>
+            <div>⭐ Reputasi: <span id="ui-rep">100</span>/100</div>
+        </div>
+        <button class="btn btn-red btn-small" onclick="resetGame()">🔄 ULANG</button>
+    </div>
 
-        // --- DATA KARYA SENI & MATERIAL ---
-        const BASE_ARTWORKS = [
-          {
-            id: 1,
-            name: "Lukisan Maestro (Cat Minyak)",
-            type: "Lukisan 2D",
-            desc: "Permukaan cat sangat sensitif terhadap bahan plastik langsung. Bingkai juga rentan lecet.",
-            icon: "🖼️",
-            correct: ["sarung_tangan", "acid_free", "bubble_wrap", "peti_kayu"],
-            feedbackError: "Gagal! Lukisan harus disentuh dengan sarung tangan, dilapisi kertas acid-free sebelum bubble wrap, dan dimasukkan ke peti kayu!"
-          },
-          {
-            id: 2,
-            name: "Patung Keramik Kontemporer",
-            type: "Objek 3D",
-            desc: "Karya keramik dengan sudut rumit. Sangat mudah retak jika terguncang di dalam kotak.",
-            icon: "🏺",
-            correct: ["sarung_tangan", "bubble_wrap", "polyfoam", "peti_kayu"],
-            feedbackError: "Gagal! Patung butuh polyfoam untuk menahan guncangan 3D di dalam peti kayu!"
-          },
-          {
-            id: 3,
-            name: "Karya Instalasi Kaca",
-            type: "Fragile / Kaca",
-            desc: "Panel kaca besar. Risiko terburuk adalah pecah berkeping-keping saat transit.",
-            icon: "🪟",
-            correct: ["sarung_tangan", "masking_tape", "bubble_wrap", "peti_kayu"],
-            feedbackError: "Gagal! Kaca harus di-plester silang (X) dengan masking tape agar tidak ambyar jika pecah, lalu bubble wrap & peti kayu."
-          },
-          {
-            id: 4,
-            name: "Arsip Foto Kertas Sejarah",
-            type: "Kertas / Arsip",
-            desc: "Sangat rentan terhadap asam dari kardus biasa dan minyak dari sidik jari manusia.",
-            icon: "🎞️",
-            correct: ["sarung_tangan", "acid_free", "map_bebas_asam"],
-            feedbackError: "Gagal! Arsip kertas harus pakai sarung tangan, dibungkus kertas acid-free, dan masuk map khusus bebas asam!"
-          }
-        ];
+    <!-- SCREEN 1: START MENU -->
+    <div id="screen-start" class="screen retro-box active">
+        <!-- Menggunakan mix-blend-mode via CSS class logo-img untuk menghilangkan putihnya -->
+        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQHjVP89EmhemqPCMSNOFCv6wpq9jzs6DWo4g&s" alt="Logo Serrum" class="logo-img">
+        
+        <h1>ARTHANDLING<br>SIMULATOR</h1>
+        <div class="text-center">
+            <div style="font-size: 60px; margin-bottom: 20px;">📦🚚🖼️</div>
+            <p>Selamat datang di biro logistik seni terbaik di kota.</p>
+            <p>Selesaikan <strong>30 Tugas Pengiriman</strong> karya seni dengan standar museum, jangan sampai rusak, dan capai target tanpa bangkrut!</p>
+            <button class="btn btn-green mt-20" onclick="startGame()" style="font-size: 20px; padding: 20px 40px;">MULAI SHIFT</button>
+        </div>
+    </div>
 
-        // Menghasilkan 50 soal berdasarkan data dasar
-        const generateArtworks = (count) => {
-          const artworks = [];
-          for (let i = 0; i < count; i++) {
-            const baseArt = BASE_ARTWORKS[i % BASE_ARTWORKS.length];
-            artworks.push({
-              ...baseArt,
-              id: i + 1,
-              name: `${baseArt.name} #${i + 1}`,
-            });
-          }
-          return artworks;
-        };
+    <!-- SCREEN 2: JOB BOARD (MENU UTAMA) -->
+    <div id="screen-jobs" class="screen retro-box">
+        <div class="flex-between" style="margin-bottom: 10px;">
+            <h2 style="color: #ff007f; text-shadow: 2px 2px 0px #000;">📋 Papan Tugas</h2>
+        </div>
+        
+        <div class="job-progress">
+            Progress: <span id="ui-completed">0</span> / 30 Karya Terkirim
+        </div>
 
-        const ARTWORKS = generateArtworks(50);
+        <p>Pilih karya seni yang harus di-packing & dikirim:</p>
+        
+        <div class="job-grid" id="job-list-container">
+            <!-- Jobs akan di-render via JS -->
+        </div>
+    </div>
 
-        const MATERIALS = [
-          { id: "sarung_tangan", name: "Sarung Tangan", icon: "🧤", color: "bg-white", desc: "Mencegah minyak jari merusak karya." },
-          { id: "acid_free", name: "Kertas Acid-Free", icon: "📄", color: "bg-gray-100", desc: "Pelindung pertama non-reaktif." },
-          { id: "masking_tape", name: "Masking Tape", icon: "🩹", color: "bg-yellow-200", desc: "Plester pengaman kaca (Pola X)." },
-          { id: "bubble_wrap", name: "Bubble Wrap", icon: "🫧", color: "bg-blue-200", desc: "Bantalan anti benturan dasar." },
-          { id: "polyfoam", name: "Polyfoam", icon: "🧊", color: "bg-cyan-100", desc: "Penahan guncangan ekstra / ganjalan." },
-          { id: "map_bebas_asam", name: "Map Acid-Free", icon: "📁", color: "bg-emerald-300", desc: "Wadah aman untuk kertas/foto." },
-          { id: "kardus", name: "Kardus Standar", icon: "📦", color: "bg-orange-400", desc: "Kemasan luar untuk non-fragile." },
-          { id: "peti_kayu", name: "Peti Kayu (Crate)", icon: "🪵", color: "bg-amber-700 text-white", desc: "Proteksi luar maksimal." }
-        ];
+    <!-- SCREEN 3: PACKING STATION -->
+    <div id="screen-packing" class="screen retro-box">
+        <div class="flex-between" style="margin-bottom: 15px;">
+            <h2 style="color: #00ffff; text-shadow: 2px 2px 0px #000; font-size: 18px;">🛠️ Stasiun Packing</h2>
+            <button class="btn btn-red btn-small" onclick="cancelJob()">BATAL</button>
+        </div>
+        
+        <div class="packing-area" id="packing-area">
+            <div class="art-display" id="current-art-icon">🖼️</div>
+            <!-- Lapisan material akan ditambahkan di sini via JS -->
+            <div id="layer-container"></div>
+        </div>
 
-        // Komponen Utama
-        function App() {
-          const [gameState, setGameState] = useState('intro');
-          const [score, setScore] = useState(0);
-          const [day, setDay] = useState(1);
-          const [currentArtIndex, setCurrentArtIndex] = useState(0);
-          const [selectedMaterials, setSelectedMaterials] = useState([]);
-          const [feedback, setFeedback] = useState({ success: false, message: "" });
-          const [lives, setLives] = useState(3);
+        <div class="status-logs" id="packing-logs">
+            > Memulai protokol arthandling...<br>
+            > Silakan pilih material pelindung.<br>
+        </div>
 
-          // --- GAME LOGIC ---
-          const startGame = () => {
-            setGameState('playing');
-            setScore(0);
-            setDay(1);
-            setLives(3);
-            setCurrentArtIndex(Math.floor(Math.random() * ARTWORKS.length));
-            setSelectedMaterials([]);
-          };
+        <h3 style="font-size: 12px; margin-bottom: 10px;">📦 Inventory Material (Biaya dipotong otomatis):</h3>
+        <div class="materials-grid" id="materials-container">
+            <!-- Material via JS -->
+        </div>
 
-          const toggleMaterial = (id) => {
-            if (selectedMaterials.includes(id)) {
-              setSelectedMaterials(selectedMaterials.filter(m => m !== id));
-            } else {
-              setSelectedMaterials([...selectedMaterials, id]);
-            }
-          };
+        <div class="text-center mt-20">
+            <button class="btn btn-green" style="width: 100%; font-size: 16px;" onclick="sendArtwork()">🚚 SEGEL & KIRIM</button>
+        </div>
+    </div>
 
-          const packArtwork = () => {
-            const art = ARTWORKS[currentArtIndex];
-            
-            const isCorrectLength = selectedMaterials.length === art.correct.length;
-            const isAllCorrect = art.correct.every(mat => selectedMaterials.includes(mat));
+    <!-- SCREEN 4: RESULT -->
+    <div id="screen-result" class="screen retro-box text-center">
+        <h1 id="result-title" style="color: #00ff00;">PENGIRIMAN SUKSES!</h1>
+        <div id="result-icon" style="font-size: 80px; margin: 20px 0;">🎉</div>
+        <p id="result-desc" style="font-size: 14px; margin-bottom: 30px;">Karya seni tiba dengan selamat.</p>
+        
+        <div style="background: #eee; border: 4px solid #000; padding: 15px; margin-bottom: 20px; text-align: left;">
+            <p><strong>Laporan Keuangan:</strong></p>
+            <p>Bayaran: +$<span id="res-reward">0</span></p>
+            <p>Biaya Material: -$<span id="res-cost">0</span></p>
+            <p>Penalti Kerusakan: -$<span id="res-penalty">0</span></p>
+            <hr style="border: 2px solid #000; margin: 10px 0;">
+            <p><strong>Total Profit: <span id="res-profit" style="color: green;">$0</span></strong></p>
+        </div>
 
-            if (isCorrectLength && isAllCorrect) {
-              setFeedback({
-                success: true,
-                message: "SEMPURNA! Karya aman dan siap dikirim. Klien sangat puas!"
-              });
-              setScore(score + 100);
-            } else {
-              setFeedback({
-                success: false,
-                message: art.feedbackError
-              });
-              setLives(lives - 1);
-            }
-            setGameState('evaluation');
-          };
+        <button class="btn btn-green" onclick="continueGame()">LANJUT KE TUGAS BERIKUTNYA</button>
+    </div>
 
-          const nextOrder = () => {
-            if (lives <= 0) {
-              setGameState('gameover');
-            } else {
-              setDay(day + 1);
-              setSelectedMaterials([]);
-              setCurrentArtIndex(Math.floor(Math.random() * ARTWORKS.length));
-              setGameState('playing');
-            }
-          };
+    <!-- SCREEN 5: GAME OVER -->
+    <div id="screen-gameover" class="screen retro-box text-center">
+        <h1 style="color: #ff0000;">BANGKRUT!</h1>
+        <div style="font-size: 80px; margin: 20px 0;">💸📉</div>
+        <p>Reputasi perusahaan hancur atau dana kamu habis.</p>
+        <p>Serrum Arthandling terpaksa ditutup sementara.</p>
+        <button class="btn btn-green mt-20" onclick="resetGame()">COBA LAGI DARI AWAL</button>
+    </div>
 
-          // --- UI COMPONENTS ---
-          const PopArtButton = ({ children, onClick, className = "", disabled = false }) => (
-            <button 
-              onClick={onClick}
-              disabled={disabled}
-              className={`
-                px-6 py-3 font-bold uppercase tracking-wider text-black border-4 border-black 
-                shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] 
-                transition-all duration-150
-                ${disabled ? 'opacity-50 cursor-not-allowed translate-y-[2px] translate-x-[2px] shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]' : 'hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[10px_10px_0px_0px_rgba(0,0,0,1)] active:translate-y-[4px] active:translate-x-[4px] active:shadow-none'}
-                ${className}
-              `}
-            >
-              {children}
-            </button>
-          );
+    <!-- SCREEN 6: WIN GAME -->
+    <div id="screen-win" class="screen retro-box text-center">
+        <h1 style="color: #00ff00;">MISI SELESAI!</h1>
+        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQHjVP89EmhemqPCMSNOFCv6wpq9jzs6DWo4g&s" alt="Logo Serrum" class="logo-img" style="max-width: 150px; margin-top: 10px;">
+        <div style="font-size: 80px; margin: 10px 0;">🏆👑</div>
+        <p style="margin-bottom: 20px; font-size: 14px; line-height: 2;">Luar biasa! Kamu berhasil mengirimkan <strong>30 karya seni</strong>. Serrum Arthandling kini menjadi biro logistik seni nomor 1 di dunia!</p>
+        <p style="color: #00ffff; text-shadow: 1px 1px 0px #000; font-size: 18px; margin-bottom: 20px;">Sisa Dana: $<span id="win-money">0</span></p>
+        <button class="btn btn-green mt-20" onclick="resetGame()">MAIN LAGI</button>
+    </div>
 
-          const PopArtCard = ({ children, className = "" }) => (
-            <div className={`bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] ${className}`}>
-              {children}
-            </div>
-          );
+</div>
 
-          // --- SCREENS ---
-          if (gameState === 'intro') {
-            return (
-              <div className="min-h-screen bg-yellow-400 p-8 flex flex-col items-center justify-center font-sans overflow-hidden relative">
-                <div className="absolute inset-0 opacity-20 pointer-events-none" style={{ backgroundImage: 'radial-gradient(#000 2px, transparent 2px)', backgroundSize: '20px 20px' }}></div>
-                
-                <div className="z-10 text-center max-w-2xl flex flex-col items-center">
-                  <div className="flex flex-col items-center justify-center gap-2 mb-6">
-                    <img 
-                      src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQHjVP89EmhemqPCMSNOFCv6wpq9jzs6DWo4g&s" 
-                      alt="Serrum Logo" 
-                      className="h-28 w-auto filter drop-shadow-[4px_4px_0px_rgba(0,0,0,0.5)]"
-                      style={{ mixBlendMode: 'multiply' }} 
-                    />
-                    <h1 className="text-5xl md:text-6xl font-black text-pink-500 tracking-tighter drop-shadow-[4px_4px_0px_rgba(0,0,0,1)] text-center leading-tight" style={{ WebkitTextStroke: '2px black' }}>
-                      SERRUM <br/> ARTHANDLING
-                    </h1>
-                  </div>
-                  <PopArtCard className="p-8 mb-8 bg-cyan-200 transform rotate-[-2deg]">
-                    <h2 className="text-2xl font-bold mb-4 uppercase border-b-4 border-black pb-2">Buku Panduan Staf</h2>
-                    <p className="text-lg font-bold mb-2">Tugasmu: Kemas karya seni klien dengan AMAN.</p>
-                    <ul className="text-left font-medium text-black/80 space-y-2 list-disc pl-6 mb-4">
-                      <li>Pilih material packing yang tepat berdasarkan jenis karya.</li>
-                      <li>Terdapat <b>50 antrean karya</b> yang harus dikerjakan!</li>
-                      <li>Salah packing = Karya rusak = Nyawa berkurang!</li>
-                    </ul>
-                    <div className="bg-yellow-300 p-3 border-2 border-black font-bold flex flex-wrap gap-2 justify-between items-center">
-                      <span>Nyawa Awal: ❤️❤️❤️</span>
-                      <span>Target: Skor Tertinggi!</span>
-                    </div>
-                  </PopArtCard>
-                  
-                  <PopArtButton onClick={startGame} className="bg-pink-500 text-white text-2xl px-12 py-4">
-                    MULAI SHIFT KERJA!
-                  </PopArtButton>
+<script>
+    /* =========================================
+       DATA & STATE MANAGEMENT
+       ========================================= */
+    let state = {
+        money: 1000,
+        reputation: 100,
+        currentJob: null,
+        selectedMaterials: [],
+        currentMaterialCost: 0,
+        completedJobs: [] // Menyimpan ID tugas yang sudah berhasil
+    };
+
+    // Database Pekerjaan - 30 Tugas dengan kombinasi packing berbeda
+    const jobsDB = [
+        { id: 'j1', title: 'Lukisan Monalisa KW', icon: '🖼️', reward: 600, desc: 'Sensitif kelembapan.', reqs: ['acid_paper', 'bubble_wrap', 'wood_crate'] },
+        { id: 'j2', title: 'Patung Pualam Abstrak', icon: '🗿', reward: 900, desc: 'Berat & mudah retak.', reqs: ['foam', 'bubble_wrap', 'wood_crate'] },
+        { id: 'j3', title: 'Vas Dinasti Ming', icon: '🏺', reward: 1200, desc: 'SUPER RAPUH! Ekstra aman.', reqs: ['acid_paper', 'foam', 'bubble_wrap', 'thick_box'] },
+        { id: 'j4', title: 'Instalasi Lampu Neon', icon: '💡', reward: 500, desc: 'Kaca rapuh. Butuh bantalan empuk.', reqs: ['bubble_wrap', 'foam', 'thick_box'] },
+        { id: 'j5', title: 'Lukisan Cat Minyak Basah', icon: '🎨', reward: 800, desc: 'Cat belum kering rata.', reqs: ['acid_paper', 'wood_crate'] },
+        { id: 'j6', title: 'Artefak Tulang Candi', icon: '🦴', reward: 1100, desc: 'Sangat rapuh termakan usia.', reqs: ['acid_paper', 'bubble_wrap', 'thick_box'] },
+        { id: 'j7', title: 'Patung Kayu Jati', icon: '🪵', reward: 450, desc: 'Kuat tapi rawan gores.', reqs: ['foam', 'thick_box'] },
+        { id: 'j8', title: 'Cermin Antik Victorian', icon: '🪞', reward: 750, desc: 'Kaca rawan pecah berkeping.', reqs: ['foam', 'bubble_wrap', 'wood_crate'] },
+        { id: 'j9', title: 'Batik Tulis Keraton', icon: '👘', reward: 650, desc: 'Kain sensitif terhadap zat asam.', reqs: ['acid_paper', 'thick_box'] },
+        { id: 'j10', title: 'Fosil Telur Dinosaurus', icon: '🦖', reward: 1500, desc: 'Aset museum rahasia. Sangat rapuh.', reqs: ['acid_paper', 'foam', 'bubble_wrap', 'wood_crate'] },
+        { id: 'j11', title: 'Piringan Hitam Langka', icon: '💿', reward: 300, desc: 'Bisa patah jika tertekuk.', reqs: ['acid_paper', 'thick_box'] },
+        { id: 'j12', title: 'Mahkota Raja Emas', icon: '👑', reward: 1800, desc: 'Benda pusaka bernilai tinggi.', reqs: ['acid_paper', 'foam', 'wood_crate'] },
+        { id: 'j13', title: 'Topeng Suku Asmat', icon: '👺', reward: 600, desc: 'Detail ukiran kayu rawan patah.', reqs: ['bubble_wrap', 'thick_box'] },
+        { id: 'j14', title: 'Gitar Akustik Musisi', icon: '🎸', reward: 400, desc: 'Kayu berongga, rawan benturan.', reqs: ['foam', 'bubble_wrap', 'thick_box'] },
+        { id: 'j15', title: 'Kamera Antik Leica', icon: '📷', reward: 900, desc: 'Lensa kaca dan mekanik sensitif.', reqs: ['foam', 'bubble_wrap', 'wood_crate'] },
+        { id: 'j16', title: 'Trofi Emas Turnamen', icon: '🏆', reward: 550, desc: 'Permukaan kilap rawan gores.', reqs: ['acid_paper', 'foam', 'thick_box'] },
+        { id: 'j17', title: 'Pedang Samurai (Katana)', icon: '🗡️', reward: 850, desc: 'Tajam dan panjang.', reqs: ['foam', 'wood_crate'] },
+        { id: 'j18', title: 'Manuskrip Lontar', icon: '📜', reward: 1000, desc: 'Daun lontar kuno, mudah hancur.', reqs: ['acid_paper', 'bubble_wrap', 'thick_box'] },
+        { id: 'j19', title: 'Instalasi Bambu', icon: '🎋', reward: 400, desc: 'Bahan ringan namun perlu frame kuat.', reqs: ['foam', 'wood_crate'] },
+        { id: 'j20', title: 'Diorama Kota Miniatur', icon: '🏙️', reward: 1300, desc: 'Banyak detail kecil, butuh bantalan penuh.', reqs: ['foam', 'bubble_wrap', 'wood_crate'] },
+        { id: 'j21', title: 'Patung Kaca Murano', icon: '🦢', reward: 1600, desc: 'Kaca murni, kesalahan sedikit=hancur.', reqs: ['acid_paper', 'foam', 'bubble_wrap', 'thick_box'] },
+        { id: 'j22', title: 'Batu Nisan Kuno', icon: '🪦', reward: 700, desc: 'Sangat berat, kardus tidak akan kuat.', reqs: ['foam', 'wood_crate'] },
+        { id: 'j23', title: 'Guci Tanah Liat', icon: '🏺', reward: 350, desc: 'Cukup aman, hindari guncangan.', reqs: ['foam', 'thick_box'] },
+        { id: 'j24', title: 'Kostum Teater Klasik', icon: '🎭', reward: 500, desc: 'Jaga serat kain dari kelembapan.', reqs: ['acid_paper', 'thick_box'] },
+        { id: 'j25', title: 'Patung Es Lilin (Resin)', icon: '🧊', reward: 850, desc: 'Bahan resin mudah retak rambut.', reqs: ['foam', 'bubble_wrap', 'thick_box'] },
+        { id: 'j26', title: 'Lukisan Mural Tembok', icon: '🧱', reward: 1200, desc: 'Sangat berat, butuh penyangga kokoh.', reqs: ['foam', 'wood_crate'] },
+        { id: 'j27', title: 'Keramik Dinasti Qing', icon: '🥣', reward: 1400, desc: 'Tak ternilai harganya. Jaga guncangan.', reqs: ['acid_paper', 'foam', 'bubble_wrap', 'wood_crate'] },
+        { id: 'j28', title: 'Lukisan Cat Air Abstrak', icon: '🖼️', reward: 600, desc: 'Kertas rawan lecek.', reqs: ['acid_paper', 'thick_box'] },
+        { id: 'j29', title: 'Set Perhiasan Berlian', icon: '💎', reward: 2000, desc: 'Sangat kecil, mudah hilang dan tergores.', reqs: ['acid_paper', 'foam', 'wood_crate'] },
+        { id: 'j30', title: 'Instalasi Komputer Kuno', icon: '💻', reward: 900, desc: 'Hardware rentan statis dan benturan.', reqs: ['bubble_wrap', 'foam', 'thick_box'] }
+    ];
+
+    // Database Material Arthandling
+    const materialsDB = [
+        { id: 'acid_paper', name: 'Kertas Bebas Asam', cost: 20, icon: '📄', visual: '⬜', log: 'Melapisi permukaan dengan Kertas Bebas Asam.' },
+        { id: 'bubble_wrap', name: 'Bubble Wrap', cost: 50, icon: '🫧', visual: '🪩', log: 'Membungkus ketat dengan Bubble Wrap.' },
+        { id: 'foam', name: 'Busa (PE Foam)', cost: 80, icon: '🧽', visual: '🌫️', log: 'Menahan guncangan dengan lapisan Busa PE.' },
+        { id: 'wood_crate', name: 'Peti Kayu Custom', cost: 200, icon: '🪵', visual: '📦', log: 'Memasukkan ke dalam Peti Kayu standar ISPM 15.' },
+        { id: 'thick_box', name: 'Kardus Double Wall', cost: 40, icon: '🗃️', visual: '🗂️', log: 'Menggunakan Kardus tebal pelindung.' }
+    ];
+
+    /* =========================================
+       CORE FUNCTIONS
+       ========================================= */
+    
+    function updateUI() {
+        document.getElementById('ui-money').innerText = state.money;
+        document.getElementById('ui-rep').innerText = state.reputation;
+        document.getElementById('ui-completed').innerText = state.completedJobs.length;
+
+        // Cek Game Over
+        if(state.money <= 0 || state.reputation <= 0) {
+            showScreen('screen-gameover');
+            document.getElementById('header-status').style.display = 'none';
+        }
+        
+        // Cek Win Condition (30 Tugas Selesai)
+        if(state.completedJobs.length >= jobsDB.length) {
+            document.getElementById('win-money').innerText = state.money;
+            showScreen('screen-win');
+            document.getElementById('header-status').style.display = 'none';
+        }
+    }
+
+    function showScreen(screenId) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(screenId).classList.add('active');
+        
+        // Tampilkan header-status hanya di halaman permainan berjalan
+        if(screenId !== 'screen-start' && screenId !== 'screen-gameover' && screenId !== 'screen-win') {
+            document.getElementById('header-status').style.display = 'flex';
+        } else {
+            document.getElementById('header-status').style.display = 'none';
+        }
+    }
+
+    function logStatus(text) {
+        const logger = document.getElementById('packing-logs');
+        logger.innerHTML += `> ${text}<br>`;
+        logger.scrollTop = logger.scrollHeight;
+    }
+
+    function resetGame() {
+        state.money = 1000;
+        state.reputation = 100;
+        state.completedJobs = [];
+        state.currentJob = null;
+        updateUI();
+        showScreen('screen-start');
+    }
+
+    function startGame() {
+        updateUI();
+        renderJobs();
+        showScreen('screen-jobs');
+    }
+
+    /* =========================================
+       JOB BOARD LOGIC
+       ========================================= */
+
+    function renderJobs() {
+        const container = document.getElementById('job-list-container');
+        container.innerHTML = '';
+
+        // Hanya render tugas yang belum diselesaikan
+        const availableJobs = jobsDB.filter(j => !state.completedJobs.includes(j.id));
+
+        availableJobs.forEach(job => {
+            const card = document.createElement('div');
+            card.className = 'job-card';
+            card.innerHTML = `
+                <div>
+                    <div class="job-icon">${job.icon}</div>
+                    <h3 style="font-size: 12px; margin-bottom: 5px;">${job.title}</h3>
+                    <p style="font-size: 10px; color: #555;">${job.desc}</p>
                 </div>
-              </div>
-            );
-          }
-
-          if (gameState === 'gameover') {
-            return (
-              <div className="min-h-screen bg-red-500 p-8 flex flex-col items-center justify-center font-sans">
-                <div className="absolute inset-0 opacity-20 pointer-events-none" style={{ backgroundImage: 'radial-gradient(#000 2px, transparent 2px)', backgroundSize: '20px 20px' }}></div>
-                <div className="z-10 text-center">
-                  <h1 className="text-6xl font-black text-yellow-300 mb-6 drop-shadow-[6px_6px_0px_rgba(0,0,0,1)]" style={{ WebkitTextStroke: '2px black' }}>
-                    DIPECAT!
-                  </h1>
-                  <PopArtCard className="p-8 mb-8 bg-white max-w-md mx-auto">
-                    <p className="text-xl font-bold mb-4">Kamu terlalu banyak merusak karya klien!</p>
-                    <p className="text-3xl font-black text-pink-500 mb-4">Skor Akhir: {score}</p>
-                    <p className="text-lg font-bold text-gray-600">Total Shift: {day} Hari</p>
-                  </PopArtCard>
-                  <PopArtButton onClick={startGame} className="bg-cyan-400">
-                    MELAMAR KERJA LAGI
-                  </PopArtButton>
+                <div>
+                    <div style="background: #000; color: #00ff00; padding: 5px; margin-bottom: 10px; font-size: 10px;">
+                        Bayaran: $${job.reward}
+                    </div>
+                    <button class="btn" style="padding: 10px; font-size: 10px; width: 100%;" onclick="takeJob('${job.id}')">KIRIM BARANG</button>
                 </div>
-              </div>
-            );
-          }
+            `;
+            container.appendChild(card);
+        });
+    }
 
-          const currentArt = ARTWORKS[currentArtIndex];
+    function takeJob(jobId) {
+        state.currentJob = jobsDB.find(j => j.id === jobId);
+        state.selectedMaterials = [];
+        state.currentMaterialCost = 0;
+        
+        // Reset Area Packing
+        document.getElementById('current-art-icon').innerText = state.currentJob.icon;
+        document.getElementById('layer-container').innerHTML = '';
+        document.getElementById('packing-logs').innerHTML = `> Memulai protokol packing: ${state.currentJob.title}<br>> Pasang material pelindung perlahan.<br>`;
+        
+        renderMaterials();
+        showScreen('screen-packing');
+    }
 
-          return (
-            <div className="min-h-screen bg-pink-100 p-4 md:p-8 font-sans text-black relative">
-              <div className="absolute inset-0 opacity-10 pointer-events-none" style={{ backgroundImage: 'radial-gradient(#000 2px, transparent 2px)', backgroundSize: '20px 20px' }}></div>
-              
-              {/* HEADER STATUS */}
-              <header className="relative z-10 flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
-                <div className="bg-yellow-400 border-4 border-black px-4 py-2 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transform -skew-x-6 flex items-center gap-3 w-full md:w-auto justify-center">
-                  <img 
-                    src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQHjVP89EmhemqPCMSNOFCv6wpq9jzs6DWo4g&s" 
-                    alt="Serrum Logo" 
-                    className="h-10 w-auto"
-                    style={{ mixBlendMode: 'multiply' }} 
-                  />
-                  <h1 className="text-xl md:text-2xl font-black italic">SERRUM ARTHANDLING</h1>
-                </div>
-                <div className="flex flex-wrap justify-center gap-2 md:gap-4 w-full md:w-auto">
-                  <div className="bg-white border-4 border-black px-3 md:px-4 py-2 font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-                    ORDER: {day}/50
-                  </div>
-                  <div className="bg-cyan-300 border-4 border-black px-3 md:px-4 py-2 font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-                    SKOR: {score}
-                  </div>
-                  <div className="bg-red-400 border-4 border-black px-3 md:px-4 py-2 font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] text-white">
-                    NYAWA: {'❤️'.repeat(lives)}
-                  </div>
-                </div>
-              </header>
+    function cancelJob() {
+        state.currentJob = null;
+        showScreen('screen-jobs');
+    }
 
-              {/* MAIN GAME AREA */}
-              <div className="relative z-10 grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
-                
-                {/* LEFT PANEL: ORDER KERJA */}
-                <div className="lg:col-span-1 space-y-6">
-                  <PopArtCard className="p-6 bg-white flex flex-col items-center text-center relative overflow-hidden">
-                    <div className="absolute top-0 left-0 bg-black text-yellow-400 font-bold px-3 py-1 text-sm border-b-4 border-r-4 border-black">
-                      ORDER MASUK
-                    </div>
-                    <div className="text-8xl mt-8 mb-4 filter drop-shadow-[4px_4px_0px_rgba(0,0,0,0.2)]">
-                      {currentArt.icon}
-                    </div>
-                    <h2 className="text-2xl font-black mb-2 uppercase">{currentArt.name}</h2>
-                    <span className="inline-block bg-pink-400 text-white font-bold px-2 py-1 border-2 border-black mb-4 transform rotate-2">
-                      Kategori: {currentArt.type}
-                    </span>
-                    <div className="bg-gray-100 border-2 border-dashed border-gray-400 p-4 text-left w-full font-medium">
-                      <span className="text-red-500 font-bold block mb-1">CATATAN KONDISI:</span>
-                      {currentArt.desc}
-                    </div>
-                  </PopArtCard>
-                </div>
+    function continueGame() {
+        // Lanjut ke job board dan perbarui grid tugas
+        renderJobs();
+        showScreen('screen-jobs');
+    }
 
-                {/* RIGHT PANEL: INVENTORY & ACTION */}
-                <div className="lg:col-span-2 space-y-6">
-                  <PopArtCard className="p-4 md:p-6 bg-yellow-100">
-                    <h3 className="text-lg md:text-xl font-black uppercase mb-4 border-b-4 border-black pb-2 flex flex-col md:flex-row md:justify-between items-start md:items-center gap-2">
-                      <span>Gudang Material</span>
-                      <span className="text-xs md:text-sm font-bold text-gray-500 bg-white px-2 py-1 border-2 border-black">Pilih Material Sesuai Urutan!</span>
-                    </h3>
-                    
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
-                      {MATERIALS.map(mat => {
-                        const isSelected = selectedMaterials.includes(mat.id);
-                        const orderIndex = selectedMaterials.indexOf(mat.id) + 1;
-                        return (
-                          <button
-                            key={mat.id}
-                            onClick={() => gameState === 'playing' && toggleMaterial(mat.id)}
-                            className={`
-                              relative p-3 md:p-4 border-4 border-black flex flex-col items-center justify-center text-center transition-transform min-h-[120px]
-                              ${mat.color} 
-                              ${isSelected ? 'shadow-none translate-y-[4px] translate-x-[4px] bg-opacity-80' : 'shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-1 hover:-translate-x-1'}
-                              ${gameState !== 'playing' ? 'opacity-50 cursor-not-allowed' : ''}
-                            `}
-                          >
-                            {isSelected && (
-                              <div className="absolute -top-3 -right-3 bg-red-500 text-white w-8 h-8 rounded-full border-2 border-black flex items-center justify-center font-black text-xl z-20">
-                                {orderIndex}
-                              </div>
-                            )}
-                            <span className="text-3xl md:text-4xl mb-2 filter drop-shadow-[2px_2px_0px_rgba(0,0,0,0.3)]">{mat.icon}</span>
-                            <span className="font-bold text-xs md:text-sm uppercase leading-tight">{mat.name}</span>
-                          </button>
-                        )
-                      })}
-                    </div>
-                  </PopArtCard>
+    /* =========================================
+       PACKING LOGIC
+       ========================================= */
 
-                  {/* ACTION BUTTON */}
-                  <div className="flex justify-end">
-                    <PopArtButton 
-                      onClick={packArtwork} 
-                      disabled={selectedMaterials.length === 0 || gameState !== 'playing'}
-                      className="bg-cyan-400 text-xl md:text-2xl w-full md:w-auto py-4 md:py-6 px-8 md:px-12 animate-pulse hover:animate-none"
-                    >
-                      📦 KEMAS & KIRIM!
-                    </PopArtButton>
-                  </div>
-                </div>
+    function renderMaterials() {
+        const container = document.getElementById('materials-container');
+        container.innerHTML = '';
 
-              </div>
+        materialsDB.forEach(mat => {
+            const btn = document.createElement('div');
+            btn.className = 'material-btn';
+            btn.innerHTML = `
+                <div style="font-size: 24px;">${mat.icon}</div>
+                <div style="margin-top: 5px;">${mat.name}</div>
+                <div style="color: #ff007f; margin-top: 5px;">-$${mat.cost}</div>
+            `;
+            btn.onclick = () => applyMaterial(mat.id, btn);
+            container.appendChild(btn);
+        });
+    }
 
-              {/* EVALUATION OVERLAY */}
-              {gameState === 'evaluation' && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm overflow-y-auto">
-                  <PopArtCard className={`max-w-2xl w-full p-6 md:p-8 text-center transform scale-100 md:scale-110 transition-transform my-auto ${feedback.success ? 'bg-green-300' : 'bg-red-300'}`}>
-                    <div className="text-5xl md:text-6xl mb-4">
-                      {feedback.success ? '💥 PANGKAS HABIS! 💥' : '⚠️ BENCANA! ⚠️'}
-                    </div>
-                    <h2 className="text-2xl md:text-3xl font-black uppercase mb-4 shadow-black drop-shadow-[2px_2px_0px_rgba(255,255,255,1)]">
-                      {feedback.success ? 'Packing Berhasil!' : 'Packing Gagal!'}
-                    </h2>
-                    <div className="bg-white border-4 border-black p-4 mb-6 text-lg md:text-xl font-bold">
-                      {feedback.message}
-                    </div>
-                    
-                    <div className="mb-6 bg-black/10 p-4 border-2 border-black text-left">
-                      <p className="font-bold mb-2">SOP yang Benar untuk {currentArt.name}:</p>
-                      <div className="flex flex-wrap gap-2">
-                        {currentArt.correct.map((id, idx) => {
-                          const mat = MATERIALS.find(m => m.id === id);
-                          return (
-                            <span key={idx} className="bg-white border-2 border-black px-2 py-1 font-bold text-xs md:text-sm flex items-center gap-1">
-                              <span>{idx + 1}.</span> {mat.icon} {mat.name}
-                            </span>
-                          )
-                        })}
-                      </div>
-                    </div>
-
-                    <PopArtButton onClick={nextOrder} className="bg-yellow-400 w-full text-lg md:text-xl">
-                      LANJUT ORDER BERIKUTNYA ➔
-                    </PopArtButton>
-                  </PopArtCard>
-                </div>
-              )}
-            </div>
-          );
+    function applyMaterial(matId, btnElement) {
+        const mat = materialsDB.find(m => m.id === matId);
+        
+        // Cek uang cukup tidak
+        if (state.money < mat.cost) {
+            logStatus(`<span style="color:red">Ditolak: Dana tidak cukup untuk ${mat.name}!</span>`);
+            return;
         }
 
-        // --- RENDER APP KE HTML ---
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
-    </script>
+        // Potong uang
+        state.money -= mat.cost;
+        state.currentMaterialCost += mat.cost;
+        updateUI();
+
+        // Tambah ke array
+        state.selectedMaterials.push(mat.id);
+        
+        // Animasi tombol
+        btnElement.classList.add('selected');
+        setTimeout(() => btnElement.classList.remove('selected'), 200);
+
+        // Visual Tambahan di Artwork
+        const layerCont = document.getElementById('layer-container');
+        const layer = document.createElement('div');
+        layer.className = 'layer-overlay';
+        layer.innerText = mat.visual;
+        // Efek layer menumpuk dan membesar sedikit
+        const layerCount = state.selectedMaterials.length;
+        layer.style.fontSize = `${100 + (layerCount * 10)}px`;
+        layer.style.zIndex = 10 + layerCount;
+        layerCont.appendChild(layer);
+
+        // Log
+        logStatus(mat.log);
+    }
+
+    /* =========================================
+       EVALUATION & RESULT
+       ========================================= */
+
+    function sendArtwork() {
+        if (state.selectedMaterials.length === 0) {
+            alert("Perhatian: Karya seni belum di-packing! Jika dikirim sekarang akan hancur lebur!");
+            return;
+        }
+
+        const job = state.currentJob;
+        let errors = 0;
+        let penalty = 0;
+        let logResult = [];
+
+        // Evaluasi Kebutuhan Standar
+        job.reqs.forEach(req => {
+            if (!state.selectedMaterials.includes(req)) {
+                errors++;
+                const matName = materialsDB.find(m=>m.id === req).name;
+                logResult.push(`Kurang: ${matName}`);
+            }
+        });
+
+        // Hitung Hasil
+        let isSuccess = false;
+        let titleColor, titleText, iconE, descText;
+
+        if (errors === 0) {
+            isSuccess = true;
+            titleColor = "#00ff00"; // Green
+            titleText = "PENGIRIMAN SUKSES!";
+            iconE = "🎉🏆";
+            descText = "Standar museum terpenuhi! Karya tiba dalam kondisi sempurna.";
+            state.reputation = Math.min(100, state.reputation + 10);
+            penalty = 0;
+        } else if (errors === 1) {
+            isSuccess = true; // Lulus tapi cacat
+            titleColor = "#ffde00"; // Yellow
+            titleText = "BERHASIL (DENGAN CACAT)";
+            iconE = "⚠️😅";
+            descText = "Karya tiba, tapi ada sedikit goresan/kerusakan kecil. " + logResult.join(", ");
+            state.reputation -= 10;
+            penalty = Math.floor(job.reward * 0.4); // Potong 40% dari reward
+        } else {
+            isSuccess = false; // Gagal total, barang hancur, tugas harus diulang
+            titleColor = "#ff0000"; // Red
+            titleText = "KARYA SENI HANCUR!";
+            iconE = "💥😭";
+            descText = "Packing sangat buruk! Kolektor murka menuntut ganti rugi. " + logResult.join(", ");
+            state.reputation -= 30;
+            penalty = job.reward + 200; // Tidak dapat reward, malah kena denda besar
+        }
+
+        // Tandai selesai jika sukses (baik sempurna maupun cacat sedikit)
+        // Jika hancur total, status belum selesai, pemain harus mengulang order barang ini
+        if (isSuccess) {
+            if (!state.completedJobs.includes(job.id)) {
+                state.completedJobs.push(job.id);
+            }
+        }
+
+        // Hitung Uang
+        let finalReward = isSuccess ? job.reward : 0;
+        let profit = finalReward - state.currentMaterialCost - penalty;
+        state.money += finalReward;
+        state.money -= penalty;
+
+        // Render Result Screen
+        document.getElementById('result-title').innerText = titleText;
+        document.getElementById('result-title').style.color = titleColor;
+        document.getElementById('result-icon').innerText = iconE;
+        document.getElementById('result-desc').innerText = descText;
+
+        document.getElementById('res-reward').innerText = finalReward;
+        document.getElementById('res-cost').innerText = state.currentMaterialCost;
+        document.getElementById('res-penalty').innerText = penalty;
+        
+        const profitEl = document.getElementById('res-profit');
+        profitEl.innerText = profit >= 0 ? `+$${profit}` : `-$${Math.abs(profit)}`;
+        profitEl.style.color = profit >= 0 ? 'green' : 'red';
+
+        updateUI();
+        
+        // Hanya pindah ke screen result jika game belum over atau win
+        if (state.money > 0 && state.reputation > 0 && state.completedJobs.length < jobsDB.length) {
+            showScreen('screen-result');
+        }
+    }
+
+</script>
 </body>
 </html>
