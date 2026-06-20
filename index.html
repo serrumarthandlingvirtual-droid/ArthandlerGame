@@ -40,6 +40,7 @@ const BASE_ARTWORKS = [
   }
 ];
 
+// Menghasilkan 50 soal berdasarkan data dasar
 const generateArtworks = (count) => {
   const artworks = [];
   for (let i = 0; i < count; i++) {
@@ -158,15 +159,16 @@ export default function App() {
         {/* Halftone Pattern Background (CSS Trick) */}
         <div className="absolute inset-0 opacity-20 pointer-events-none" style={{ backgroundImage: 'radial-gradient(#000 2px, transparent 2px)', backgroundSize: '20px 20px' }}></div>
         
-        <div className="z-10 text-center max-w-2xl">
-          <div className="flex items-center justify-center gap-4 mb-4">
+        <div className="z-10 text-center max-w-2xl flex flex-col items-center">
+          <div className="flex flex-col items-center justify-center gap-2 mb-6">
+            {/* Logo Serrum dengan trik CSS mixBlendMode: 'multiply' untuk menghilangkan background putih */}
             <img 
               src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQHjVP89EmhemqPCMSNOFCv6wpq9jzs6DWo4g&s" 
               alt="Serrum Logo" 
-              className="h-20 w-auto filter drop-shadow-[4px_4px_0px_rgba(0,0,0,1)]"
+              className="h-28 w-auto filter drop-shadow-[4px_4px_0px_rgba(0,0,0,0.5)]"
               style={{ mixBlendMode: 'multiply' }} 
             />
-            <h1 className="text-6xl font-black text-pink-500 tracking-tighter drop-shadow-[4px_4px_0px_rgba(0,0,0,1)]" style={{ WebkitTextStroke: '2px black' }}>
+            <h1 className="text-5xl md:text-6xl font-black text-pink-500 tracking-tighter drop-shadow-[4px_4px_0px_rgba(0,0,0,1)] text-center leading-tight" style={{ WebkitTextStroke: '2px black' }}>
               SERRUM <br/> ARTHANDLING
             </h1>
           </div>
@@ -175,10 +177,10 @@ export default function App() {
             <p className="text-lg font-bold mb-2">Tugasmu: Kemas karya seni klien dengan AMAN.</p>
             <ul className="text-left font-medium text-black/80 space-y-2 list-disc pl-6 mb-4">
               <li>Pilih material packing yang tepat berdasarkan jenis karya.</li>
+              <li>Terdapat <b>50 antrean karya</b> yang harus dikerjakan!</li>
               <li>Salah packing = Karya rusak = Nyawa berkurang!</li>
-              <li>Gunakan logika Art Logistics (contoh: jangan sentuh pakai tangan kosong).</li>
             </ul>
-            <div className="bg-yellow-300 p-3 border-2 border-black font-bold flex justify-between items-center">
+            <div className="bg-yellow-300 p-3 border-2 border-black font-bold flex flex-wrap gap-2 justify-between items-center">
               <span>Nyawa Awal: ❤️❤️❤️</span>
               <span>Target: Skor Tertinggi!</span>
             </div>
@@ -220,24 +222,24 @@ export default function App() {
       <div className="absolute inset-0 opacity-10 pointer-events-none" style={{ backgroundImage: 'radial-gradient(#000 2px, transparent 2px)', backgroundSize: '20px 20px' }}></div>
       
       {/* HEADER STATUS */}
-      <header className="relative z-10 flex flex-wrap justify-between items-center mb-8 gap-4">
-        <div className="bg-yellow-400 border-4 border-black px-4 py-2 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transform -skew-x-6 flex items-center gap-2">
+      <header className="relative z-10 flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+        <div className="bg-yellow-400 border-4 border-black px-4 py-2 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transform -skew-x-6 flex items-center gap-3 w-full md:w-auto justify-center">
           <img 
             src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQHjVP89EmhemqPCMSNOFCv6wpq9jzs6DWo4g&s" 
             alt="Serrum Logo" 
-            className="h-8 w-auto"
+            className="h-10 w-auto"
             style={{ mixBlendMode: 'multiply' }} 
           />
-          <h1 className="text-2xl font-black italic">SERRUM ARTHANDLING</h1>
+          <h1 className="text-xl md:text-2xl font-black italic">SERRUM ARTHANDLING</h1>
         </div>
-        <div className="flex gap-4">
-          <div className="bg-white border-4 border-black px-4 py-2 font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-            SHIFT: {day}
+        <div className="flex flex-wrap justify-center gap-2 md:gap-4 w-full md:w-auto">
+          <div className="bg-white border-4 border-black px-3 md:px-4 py-2 font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+            ORDER: {day}/50
           </div>
-          <div className="bg-cyan-300 border-4 border-black px-4 py-2 font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+          <div className="bg-cyan-300 border-4 border-black px-3 md:px-4 py-2 font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
             SKOR: {score}
           </div>
-          <div className="bg-red-400 border-4 border-black px-4 py-2 font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] text-white">
+          <div className="bg-red-400 border-4 border-black px-3 md:px-4 py-2 font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] text-white">
             NYAWA: {'❤️'.repeat(lives)}
           </div>
         </div>
@@ -268,13 +270,13 @@ export default function App() {
 
         {/* RIGHT PANEL: INVENTORY & ACTION */}
         <div className="lg:col-span-2 space-y-6">
-          <PopArtCard className="p-6 bg-yellow-100">
-            <h3 className="text-xl font-black uppercase mb-4 border-b-4 border-black pb-2 flex justify-between">
+          <PopArtCard className="p-4 md:p-6 bg-yellow-100">
+            <h3 className="text-lg md:text-xl font-black uppercase mb-4 border-b-4 border-black pb-2 flex flex-col md:flex-row md:justify-between items-start md:items-center gap-2">
               <span>Gudang Material</span>
-              <span className="text-sm font-bold text-gray-500 bg-white px-2 py-1 border-2 border-black">Pilih Material Sesuai Urutan!</span>
+              <span className="text-xs md:text-sm font-bold text-gray-500 bg-white px-2 py-1 border-2 border-black">Pilih Material Sesuai Urutan!</span>
             </h3>
             
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
               {MATERIALS.map(mat => {
                 const isSelected = selectedMaterials.includes(mat.id);
                 const orderIndex = selectedMaterials.indexOf(mat.id) + 1;
@@ -283,7 +285,7 @@ export default function App() {
                     key={mat.id}
                     onClick={() => gameState === 'playing' && toggleMaterial(mat.id)}
                     className={`
-                      relative p-4 border-4 border-black flex flex-col items-center justify-center text-center transition-transform
+                      relative p-3 md:p-4 border-4 border-black flex flex-col items-center justify-center text-center transition-transform min-h-[120px]
                       ${mat.color} 
                       ${isSelected ? 'shadow-none translate-y-[4px] translate-x-[4px] bg-opacity-80' : 'shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-1 hover:-translate-x-1'}
                       ${gameState !== 'playing' ? 'opacity-50 cursor-not-allowed' : ''}
@@ -294,8 +296,8 @@ export default function App() {
                         {orderIndex}
                       </div>
                     )}
-                    <span className="text-4xl mb-2 filter drop-shadow-[2px_2px_0px_rgba(0,0,0,0.3)]">{mat.icon}</span>
-                    <span className="font-bold text-sm uppercase leading-tight">{mat.name}</span>
+                    <span className="text-3xl md:text-4xl mb-2 filter drop-shadow-[2px_2px_0px_rgba(0,0,0,0.3)]">{mat.icon}</span>
+                    <span className="font-bold text-xs md:text-sm uppercase leading-tight">{mat.name}</span>
                   </button>
                 )
               })}
@@ -307,7 +309,7 @@ export default function App() {
             <PopArtButton 
               onClick={packArtwork} 
               disabled={selectedMaterials.length === 0 || gameState !== 'playing'}
-              className="bg-cyan-400 text-2xl w-full md:w-auto py-6 px-12 animate-pulse hover:animate-none"
+              className="bg-cyan-400 text-xl md:text-2xl w-full md:w-auto py-4 md:py-6 px-8 md:px-12 animate-pulse hover:animate-none"
             >
               📦 KEMAS & KIRIM!
             </PopArtButton>
@@ -318,15 +320,15 @@ export default function App() {
 
       {/* EVALUATION OVERLAY */}
       {gameState === 'evaluation' && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
-          <PopArtCard className={`max-w-2xl w-full p-8 text-center transform scale-110 transition-transform ${feedback.success ? 'bg-green-300' : 'bg-red-300'}`}>
-            <div className="text-6xl mb-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm overflow-y-auto">
+          <PopArtCard className={`max-w-2xl w-full p-6 md:p-8 text-center transform scale-100 md:scale-110 transition-transform my-auto ${feedback.success ? 'bg-green-300' : 'bg-red-300'}`}>
+            <div className="text-5xl md:text-6xl mb-4">
               {feedback.success ? '💥 PANGKAS HABIS! 💥' : '⚠️ BENCANA! ⚠️'}
             </div>
-            <h2 className="text-3xl font-black uppercase mb-4 shadow-black drop-shadow-[2px_2px_0px_rgba(255,255,255,1)]">
+            <h2 className="text-2xl md:text-3xl font-black uppercase mb-4 shadow-black drop-shadow-[2px_2px_0px_rgba(255,255,255,1)]">
               {feedback.success ? 'Packing Berhasil!' : 'Packing Gagal!'}
             </h2>
-            <div className="bg-white border-4 border-black p-4 mb-6 text-xl font-bold">
+            <div className="bg-white border-4 border-black p-4 mb-6 text-lg md:text-xl font-bold">
               {feedback.message}
             </div>
             
@@ -336,7 +338,7 @@ export default function App() {
                 {currentArt.correct.map((id, idx) => {
                   const mat = MATERIALS.find(m => m.id === id);
                   return (
-                    <span key={idx} className="bg-white border-2 border-black px-2 py-1 font-bold text-sm flex items-center gap-1">
+                    <span key={idx} className="bg-white border-2 border-black px-2 py-1 font-bold text-xs md:text-sm flex items-center gap-1">
                       <span>{idx + 1}.</span> {mat.icon} {mat.name}
                     </span>
                   )
@@ -344,7 +346,7 @@ export default function App() {
               </div>
             </div>
 
-            <PopArtButton onClick={nextOrder} className="bg-yellow-400 w-full text-xl">
+            <PopArtButton onClick={nextOrder} className="bg-yellow-400 w-full text-lg md:text-xl">
               LANJUT ORDER BERIKUTNYA ➔
             </PopArtButton>
           </PopArtCard>
