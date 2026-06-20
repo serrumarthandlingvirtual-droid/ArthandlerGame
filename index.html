@@ -1,366 +1,393 @@
-import React, { useState, useEffect } from 'react';
-
-// --- DATA KARYA SENI & MATERIAL ---
-const BASE_ARTWORKS = [
-  {
-    id: 1,
-    name: "Lukisan Maestro (Cat Minyak)",
-    type: "Lukisan 2D",
-    desc: "Permukaan cat sangat sensitif terhadap bahan plastik langsung. Bingkai juga rentan lecet.",
-    icon: "🖼️",
-    correct: ["sarung_tangan", "acid_free", "bubble_wrap", "peti_kayu"],
-    feedbackError: "Gagal! Lukisan harus disentuh dengan sarung tangan, dilapisi kertas acid-free sebelum bubble wrap, dan dimasukkan ke peti kayu!"
-  },
-  {
-    id: 2,
-    name: "Patung Keramik Kontemporer",
-    type: "Objek 3D",
-    desc: "Karya keramik dengan sudut rumit. Sangat mudah retak jika terguncang di dalam kotak.",
-    icon: "🏺",
-    correct: ["sarung_tangan", "bubble_wrap", "polyfoam", "peti_kayu"],
-    feedbackError: "Gagal! Patung butuh polyfoam untuk menahan guncangan 3D di dalam peti kayu!"
-  },
-  {
-    id: 3,
-    name: "Karya Instalasi Kaca",
-    type: "Fragile / Kaca",
-    desc: "Panel kaca besar. Risiko terburuk adalah pecah berkeping-keping saat transit.",
-    icon: "🪟",
-    correct: ["sarung_tangan", "masking_tape", "bubble_wrap", "peti_kayu"],
-    feedbackError: "Gagal! Kaca harus di-plester silang (X) dengan masking tape agar tidak ambyar jika pecah, lalu bubble wrap & peti kayu."
-  },
-  {
-    id: 4,
-    name: "Arsip Foto Kertas Sejarah",
-    type: "Kertas / Arsip",
-    desc: "Sangat rentan terhadap asam dari kardus biasa dan minyak dari sidik jari manusia.",
-    icon: "🎞️",
-    correct: ["sarung_tangan", "acid_free", "map_bebas_asam"],
-    feedbackError: "Gagal! Arsip kertas harus pakai sarung tangan, dibungkus kertas acid-free, dan masuk map khusus bebas asam!"
-  }
-];
-
-// Menghasilkan 50 soal berdasarkan data dasar
-const generateArtworks = (count) => {
-  const artworks = [];
-  for (let i = 0; i < count; i++) {
-    const baseArt = BASE_ARTWORKS[i % BASE_ARTWORKS.length];
-    artworks.push({
-      ...baseArt,
-      id: i + 1,
-      name: `${baseArt.name} #${i + 1}`,
-    });
-  }
-  return artworks;
-};
-
-const ARTWORKS = generateArtworks(50);
-
-const MATERIALS = [
-  { id: "sarung_tangan", name: "Sarung Tangan", icon: "🧤", color: "bg-white", desc: "Mencegah minyak jari merusak karya." },
-  { id: "acid_free", name: "Kertas Acid-Free", icon: "📄", color: "bg-gray-100", desc: "Pelindung pertama non-reaktif." },
-  { id: "masking_tape", name: "Masking Tape", icon: "🩹", color: "bg-yellow-200", desc: "Plester pengaman kaca (Pola X)." },
-  { id: "bubble_wrap", name: "Bubble Wrap", icon: "🫧", color: "bg-blue-200", desc: "Bantalan anti benturan dasar." },
-  { id: "polyfoam", name: "Polyfoam", icon: "🧊", color: "bg-cyan-100", desc: "Penahan guncangan ekstra / ganjalan." },
-  { id: "map_bebas_asam", name: "Map Acid-Free", icon: "📁", color: "bg-emerald-300", desc: "Wadah aman untuk kertas/foto." },
-  { id: "kardus", name: "Kardus Standar", icon: "📦", color: "bg-orange-400", desc: "Kemasan luar untuk non-fragile." },
-  { id: "peti_kayu", name: "Peti Kayu (Crate)", icon: "🪵", color: "bg-amber-700 text-white", desc: "Proteksi luar maksimal." }
-];
-
-export default function App() {
-  const [gameState, setGameState] = useState('intro'); // intro, playing, evaluation, gameover
-  const [score, setScore] = useState(0);
-  const [day, setDay] = useState(1);
-  const [currentArtIndex, setCurrentArtIndex] = useState(0);
-  const [selectedMaterials, setSelectedMaterials] = useState([]);
-  const [feedback, setFeedback] = useState({ success: false, message: "" });
-  const [lives, setLives] = useState(3);
-
-  // --- GAME LOGIC ---
-  const startGame = () => {
-    setGameState('playing');
-    setScore(0);
-    setDay(1);
-    setLives(3);
-    setCurrentArtIndex(Math.floor(Math.random() * ARTWORKS.length));
-    setSelectedMaterials([]);
-  };
-
-  const toggleMaterial = (id) => {
-    if (selectedMaterials.includes(id)) {
-      setSelectedMaterials(selectedMaterials.filter(m => m !== id));
-    } else {
-      setSelectedMaterials([...selectedMaterials, id]);
-    }
-  };
-
-  const packArtwork = () => {
-    const art = ARTWORKS[currentArtIndex];
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Serrum ArtHandling</title>
     
-    // Check if correct
-    const isCorrectLength = selectedMaterials.length === art.correct.length;
-    const isAllCorrect = art.correct.every(mat => selectedMaterials.includes(mat));
-
-    if (isCorrectLength && isAllCorrect) {
-      setFeedback({
-        success: true,
-        message: "SEMPURNA! Karya aman dan siap dikirim. Klien sangat puas!"
-      });
-      setScore(score + 100);
-    } else {
-      setFeedback({
-        success: false,
-        message: art.feedbackError
-      });
-      setLives(lives - 1);
-    }
-    setGameState('evaluation');
-  };
-
-  const nextOrder = () => {
-    if (lives <= 0) {
-      setGameState('gameover');
-    } else {
-      setDay(day + 1);
-      setSelectedMaterials([]);
-      // Pick random artwork (could be same, to keep it simple & infinite)
-      setCurrentArtIndex(Math.floor(Math.random() * ARTWORKS.length));
-      setGameState('playing');
-    }
-  };
-
-  // --- UI COMPONENTS ---
-  const PopArtButton = ({ children, onClick, className = "", disabled = false }) => (
-    <button 
-      onClick={onClick}
-      disabled={disabled}
-      className={`
-        px-6 py-3 font-bold uppercase tracking-wider text-black border-4 border-black 
-        shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] 
-        transition-all duration-150
-        ${disabled ? 'opacity-50 cursor-not-allowed translate-y-[2px] translate-x-[2px] shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]' : 'hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[10px_10px_0px_0px_rgba(0,0,0,1)] active:translate-y-[4px] active:translate-x-[4px] active:shadow-none'}
-        ${className}
-      `}
-    >
-      {children}
-    </button>
-  );
-
-  const PopArtCard = ({ children, className = "" }) => (
-    <div className={`bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] ${className}`}>
-      {children}
-    </div>
-  );
-
-  // --- SCREENS ---
-  if (gameState === 'intro') {
-    return (
-      <div className="min-h-screen bg-yellow-400 p-8 flex flex-col items-center justify-center font-sans overflow-hidden relative">
-        {/* Halftone Pattern Background (CSS Trick) */}
-        <div className="absolute inset-0 opacity-20 pointer-events-none" style={{ backgroundImage: 'radial-gradient(#000 2px, transparent 2px)', backgroundSize: '20px 20px' }}></div>
-        
-        <div className="z-10 text-center max-w-2xl flex flex-col items-center">
-          <div className="flex flex-col items-center justify-center gap-2 mb-6">
-            {/* Logo Serrum dengan trik CSS mixBlendMode: 'multiply' untuk menghilangkan background putih */}
-            <img 
-              src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQHjVP89EmhemqPCMSNOFCv6wpq9jzs6DWo4g&s" 
-              alt="Serrum Logo" 
-              className="h-28 w-auto filter drop-shadow-[4px_4px_0px_rgba(0,0,0,0.5)]"
-              style={{ mixBlendMode: 'multiply' }} 
-            />
-            <h1 className="text-5xl md:text-6xl font-black text-pink-500 tracking-tighter drop-shadow-[4px_4px_0px_rgba(0,0,0,1)] text-center leading-tight" style={{ WebkitTextStroke: '2px black' }}>
-              SERRUM <br/> ARTHANDLING
-            </h1>
-          </div>
-          <PopArtCard className="p-8 mb-8 bg-cyan-200 transform rotate-[-2deg]">
-            <h2 className="text-2xl font-bold mb-4 uppercase border-b-4 border-black pb-2">Buku Panduan Staf</h2>
-            <p className="text-lg font-bold mb-2">Tugasmu: Kemas karya seni klien dengan AMAN.</p>
-            <ul className="text-left font-medium text-black/80 space-y-2 list-disc pl-6 mb-4">
-              <li>Pilih material packing yang tepat berdasarkan jenis karya.</li>
-              <li>Terdapat <b>50 antrean karya</b> yang harus dikerjakan!</li>
-              <li>Salah packing = Karya rusak = Nyawa berkurang!</li>
-            </ul>
-            <div className="bg-yellow-300 p-3 border-2 border-black font-bold flex flex-wrap gap-2 justify-between items-center">
-              <span>Nyawa Awal: ❤️❤️❤️</span>
-              <span>Target: Skor Tertinggi!</span>
-            </div>
-          </PopArtCard>
-          
-          <PopArtButton onClick={startGame} className="bg-pink-500 text-white text-2xl px-12 py-4">
-            MULAI SHIFT KERJA!
-          </PopArtButton>
-        </div>
-      </div>
-    );
-  }
-
-  if (gameState === 'gameover') {
-    return (
-      <div className="min-h-screen bg-red-500 p-8 flex flex-col items-center justify-center font-sans">
-        <div className="absolute inset-0 opacity-20 pointer-events-none" style={{ backgroundImage: 'radial-gradient(#000 2px, transparent 2px)', backgroundSize: '20px 20px' }}></div>
-        <div className="z-10 text-center">
-          <h1 className="text-6xl font-black text-yellow-300 mb-6 drop-shadow-[6px_6px_0px_rgba(0,0,0,1)]" style={{ WebkitTextStroke: '2px black' }}>
-            DIPECAT!
-          </h1>
-          <PopArtCard className="p-8 mb-8 bg-white max-w-md mx-auto">
-            <p className="text-xl font-bold mb-4">Kamu terlalu banyak merusak karya klien!</p>
-            <p className="text-3xl font-black text-pink-500 mb-4">Skor Akhir: {score}</p>
-            <p className="text-lg font-bold text-gray-600">Total Shift: {day} Hari</p>
-          </PopArtCard>
-          <PopArtButton onClick={startGame} className="bg-cyan-400">
-            MELAMAR KERJA LAGI
-          </PopArtButton>
-        </div>
-      </div>
-    );
-  }
-
-  const currentArt = ARTWORKS[currentArtIndex];
-
-  return (
-    <div className="min-h-screen bg-pink-100 p-4 md:p-8 font-sans text-black relative">
-      <div className="absolute inset-0 opacity-10 pointer-events-none" style={{ backgroundImage: 'radial-gradient(#000 2px, transparent 2px)', backgroundSize: '20px 20px' }}></div>
-      
-      {/* HEADER STATUS */}
-      <header className="relative z-10 flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
-        <div className="bg-yellow-400 border-4 border-black px-4 py-2 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transform -skew-x-6 flex items-center gap-3 w-full md:w-auto justify-center">
-          <img 
-            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQHjVP89EmhemqPCMSNOFCv6wpq9jzs6DWo4g&s" 
-            alt="Serrum Logo" 
-            className="h-10 w-auto"
-            style={{ mixBlendMode: 'multiply' }} 
-          />
-          <h1 className="text-xl md:text-2xl font-black italic">SERRUM ARTHANDLING</h1>
-        </div>
-        <div className="flex flex-wrap justify-center gap-2 md:gap-4 w-full md:w-auto">
-          <div className="bg-white border-4 border-black px-3 md:px-4 py-2 font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-            ORDER: {day}/50
-          </div>
-          <div className="bg-cyan-300 border-4 border-black px-3 md:px-4 py-2 font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-            SKOR: {score}
-          </div>
-          <div className="bg-red-400 border-4 border-black px-3 md:px-4 py-2 font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] text-white">
-            NYAWA: {'❤️'.repeat(lives)}
-          </div>
-        </div>
-      </header>
-
-      {/* MAIN GAME AREA */}
-      <div className="relative z-10 grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
-        
-        {/* LEFT PANEL: ORDER KERJA */}
-        <div className="lg:col-span-1 space-y-6">
-          <PopArtCard className="p-6 bg-white flex flex-col items-center text-center relative overflow-hidden">
-            <div className="absolute top-0 left-0 bg-black text-yellow-400 font-bold px-3 py-1 text-sm border-b-4 border-r-4 border-black">
-              ORDER MASUK
-            </div>
-            <div className="text-8xl mt-8 mb-4 filter drop-shadow-[4px_4px_0px_rgba(0,0,0,0.2)]">
-              {currentArt.icon}
-            </div>
-            <h2 className="text-2xl font-black mb-2 uppercase">{currentArt.name}</h2>
-            <span className="inline-block bg-pink-400 text-white font-bold px-2 py-1 border-2 border-black mb-4 transform rotate-2">
-              Kategori: {currentArt.type}
-            </span>
-            <div className="bg-gray-100 border-2 border-dashed border-gray-400 p-4 text-left w-full font-medium">
-              <span className="text-red-500 font-bold block mb-1">CATATAN KONDISI:</span>
-              {currentArt.desc}
-            </div>
-          </PopArtCard>
-        </div>
-
-        {/* RIGHT PANEL: INVENTORY & ACTION */}
-        <div className="lg:col-span-2 space-y-6">
-          <PopArtCard className="p-4 md:p-6 bg-yellow-100">
-            <h3 className="text-lg md:text-xl font-black uppercase mb-4 border-b-4 border-black pb-2 flex flex-col md:flex-row md:justify-between items-start md:items-center gap-2">
-              <span>Gudang Material</span>
-              <span className="text-xs md:text-sm font-bold text-gray-500 bg-white px-2 py-1 border-2 border-black">Pilih Material Sesuai Urutan!</span>
-            </h3>
-            
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
-              {MATERIALS.map(mat => {
-                const isSelected = selectedMaterials.includes(mat.id);
-                const orderIndex = selectedMaterials.indexOf(mat.id) + 1;
-                return (
-                  <button
-                    key={mat.id}
-                    onClick={() => gameState === 'playing' && toggleMaterial(mat.id)}
-                    className={`
-                      relative p-3 md:p-4 border-4 border-black flex flex-col items-center justify-center text-center transition-transform min-h-[120px]
-                      ${mat.color} 
-                      ${isSelected ? 'shadow-none translate-y-[4px] translate-x-[4px] bg-opacity-80' : 'shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-1 hover:-translate-x-1'}
-                      ${gameState !== 'playing' ? 'opacity-50 cursor-not-allowed' : ''}
-                    `}
-                  >
-                    {isSelected && (
-                      <div className="absolute -top-3 -right-3 bg-red-500 text-white w-8 h-8 rounded-full border-2 border-black flex items-center justify-center font-black text-xl z-20">
-                        {orderIndex}
-                      </div>
-                    )}
-                    <span className="text-3xl md:text-4xl mb-2 filter drop-shadow-[2px_2px_0px_rgba(0,0,0,0.3)]">{mat.icon}</span>
-                    <span className="font-bold text-xs md:text-sm uppercase leading-tight">{mat.name}</span>
-                  </button>
-                )
-              })}
-            </div>
-          </PopArtCard>
-
-          {/* ACTION BUTTON */}
-          <div className="flex justify-end">
-            <PopArtButton 
-              onClick={packArtwork} 
-              disabled={selectedMaterials.length === 0 || gameState !== 'playing'}
-              className="bg-cyan-400 text-xl md:text-2xl w-full md:w-auto py-4 md:py-6 px-8 md:px-12 animate-pulse hover:animate-none"
-            >
-              📦 KEMAS & KIRIM!
-            </PopArtButton>
-          </div>
-        </div>
-
-      </div>
-
-      {/* EVALUATION OVERLAY */}
-      {gameState === 'evaluation' && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm overflow-y-auto">
-          <PopArtCard className={`max-w-2xl w-full p-6 md:p-8 text-center transform scale-100 md:scale-110 transition-transform my-auto ${feedback.success ? 'bg-green-300' : 'bg-red-300'}`}>
-            <div className="text-5xl md:text-6xl mb-4">
-              {feedback.success ? '💥 PANGKAS HABIS! 💥' : '⚠️ BENCANA! ⚠️'}
-            </div>
-            <h2 className="text-2xl md:text-3xl font-black uppercase mb-4 shadow-black drop-shadow-[2px_2px_0px_rgba(255,255,255,1)]">
-              {feedback.success ? 'Packing Berhasil!' : 'Packing Gagal!'}
-            </h2>
-            <div className="bg-white border-4 border-black p-4 mb-6 text-lg md:text-xl font-bold">
-              {feedback.message}
-            </div>
-            
-            <div className="mb-6 bg-black/10 p-4 border-2 border-black text-left">
-              <p className="font-bold mb-2">SOP yang Benar untuk {currentArt.name}:</p>
-              <div className="flex flex-wrap gap-2">
-                {currentArt.correct.map((id, idx) => {
-                  const mat = MATERIALS.find(m => m.id === id);
-                  return (
-                    <span key={idx} className="bg-white border-2 border-black px-2 py-1 font-bold text-xs md:text-sm flex items-center gap-1">
-                      <span>{idx + 1}.</span> {mat.icon} {mat.name}
-                    </span>
-                  )
-                })}
-              </div>
-            </div>
-
-            <PopArtButton onClick={nextOrder} className="bg-yellow-400 w-full text-lg md:text-xl">
-              LANJUT ORDER BERIKUTNYA ➔
-            </PopArtButton>
-          </PopArtCard>
-        </div>
-      )}
-      
-      {/* Global Style overrides to ensure pop art aesthetic */}
-      <style dangerouslySetInnerHTML={{__html: `
-        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700;900&display=swap');
+    <!-- Import Tailwind CSS untuk Styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Import React, ReactDOM, dan Babel agar bisa jalan di browser biasa (tanpa Node.js) -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- Import Font Pop Art -->
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700;900&display=swap" rel="stylesheet">
+    
+    <style>
         body {
-          font-family: 'Space Grotesk', sans-serif;
-          background-color: #fdf2f8; /* fallback */
+            font-family: 'Space Grotesk', sans-serif;
+            background-color: #fdf2f8; /* fallback warna bg */
         }
-      `}} />
-    </div>
-  );
-}
+    </style>
+</head>
+<body>
+    <!-- Wadah tempat Game muncul -->
+    <div id="root"></div>
+
+    <!-- Tipe script 'text/babel' agar browser paham ini kode React -->
+    <!-- Tambahan data-type="module" sangat penting untuk mencegah error 'Cannot use import statement' di beberapa environment -->
+    <script type="text/babel" data-type="module">
+        const { useState, useEffect } = React;
+
+        // --- DATA KARYA SENI & MATERIAL ---
+        const BASE_ARTWORKS = [
+          {
+            id: 1,
+            name: "Lukisan Maestro (Cat Minyak)",
+            type: "Lukisan 2D",
+            desc: "Permukaan cat sangat sensitif terhadap bahan plastik langsung. Bingkai juga rentan lecet.",
+            icon: "🖼️",
+            correct: ["sarung_tangan", "acid_free", "bubble_wrap", "peti_kayu"],
+            feedbackError: "Gagal! Lukisan harus disentuh dengan sarung tangan, dilapisi kertas acid-free sebelum bubble wrap, dan dimasukkan ke peti kayu!"
+          },
+          {
+            id: 2,
+            name: "Patung Keramik Kontemporer",
+            type: "Objek 3D",
+            desc: "Karya keramik dengan sudut rumit. Sangat mudah retak jika terguncang di dalam kotak.",
+            icon: "🏺",
+            correct: ["sarung_tangan", "bubble_wrap", "polyfoam", "peti_kayu"],
+            feedbackError: "Gagal! Patung butuh polyfoam untuk menahan guncangan 3D di dalam peti kayu!"
+          },
+          {
+            id: 3,
+            name: "Karya Instalasi Kaca",
+            type: "Fragile / Kaca",
+            desc: "Panel kaca besar. Risiko terburuk adalah pecah berkeping-keping saat transit.",
+            icon: "🪟",
+            correct: ["sarung_tangan", "masking_tape", "bubble_wrap", "peti_kayu"],
+            feedbackError: "Gagal! Kaca harus di-plester silang (X) dengan masking tape agar tidak ambyar jika pecah, lalu bubble wrap & peti kayu."
+          },
+          {
+            id: 4,
+            name: "Arsip Foto Kertas Sejarah",
+            type: "Kertas / Arsip",
+            desc: "Sangat rentan terhadap asam dari kardus biasa dan minyak dari sidik jari manusia.",
+            icon: "🎞️",
+            correct: ["sarung_tangan", "acid_free", "map_bebas_asam"],
+            feedbackError: "Gagal! Arsip kertas harus pakai sarung tangan, dibungkus kertas acid-free, dan masuk map khusus bebas asam!"
+          }
+        ];
+
+        // Menghasilkan 50 soal berdasarkan data dasar
+        const generateArtworks = (count) => {
+          const artworks = [];
+          for (let i = 0; i < count; i++) {
+            const baseArt = BASE_ARTWORKS[i % BASE_ARTWORKS.length];
+            artworks.push({
+              ...baseArt,
+              id: i + 1,
+              name: `${baseArt.name} #${i + 1}`,
+            });
+          }
+          return artworks;
+        };
+
+        const ARTWORKS = generateArtworks(50);
+
+        const MATERIALS = [
+          { id: "sarung_tangan", name: "Sarung Tangan", icon: "🧤", color: "bg-white", desc: "Mencegah minyak jari merusak karya." },
+          { id: "acid_free", name: "Kertas Acid-Free", icon: "📄", color: "bg-gray-100", desc: "Pelindung pertama non-reaktif." },
+          { id: "masking_tape", name: "Masking Tape", icon: "🩹", color: "bg-yellow-200", desc: "Plester pengaman kaca (Pola X)." },
+          { id: "bubble_wrap", name: "Bubble Wrap", icon: "🫧", color: "bg-blue-200", desc: "Bantalan anti benturan dasar." },
+          { id: "polyfoam", name: "Polyfoam", icon: "🧊", color: "bg-cyan-100", desc: "Penahan guncangan ekstra / ganjalan." },
+          { id: "map_bebas_asam", name: "Map Acid-Free", icon: "📁", color: "bg-emerald-300", desc: "Wadah aman untuk kertas/foto." },
+          { id: "kardus", name: "Kardus Standar", icon: "📦", color: "bg-orange-400", desc: "Kemasan luar untuk non-fragile." },
+          { id: "peti_kayu", name: "Peti Kayu (Crate)", icon: "🪵", color: "bg-amber-700 text-white", desc: "Proteksi luar maksimal." }
+        ];
+
+        // Komponen Utama
+        function App() {
+          const [gameState, setGameState] = useState('intro');
+          const [score, setScore] = useState(0);
+          const [day, setDay] = useState(1);
+          const [currentArtIndex, setCurrentArtIndex] = useState(0);
+          const [selectedMaterials, setSelectedMaterials] = useState([]);
+          const [feedback, setFeedback] = useState({ success: false, message: "" });
+          const [lives, setLives] = useState(3);
+
+          // --- GAME LOGIC ---
+          const startGame = () => {
+            setGameState('playing');
+            setScore(0);
+            setDay(1);
+            setLives(3);
+            setCurrentArtIndex(Math.floor(Math.random() * ARTWORKS.length));
+            setSelectedMaterials([]);
+          };
+
+          const toggleMaterial = (id) => {
+            if (selectedMaterials.includes(id)) {
+              setSelectedMaterials(selectedMaterials.filter(m => m !== id));
+            } else {
+              setSelectedMaterials([...selectedMaterials, id]);
+            }
+          };
+
+          const packArtwork = () => {
+            const art = ARTWORKS[currentArtIndex];
+            
+            const isCorrectLength = selectedMaterials.length === art.correct.length;
+            const isAllCorrect = art.correct.every(mat => selectedMaterials.includes(mat));
+
+            if (isCorrectLength && isAllCorrect) {
+              setFeedback({
+                success: true,
+                message: "SEMPURNA! Karya aman dan siap dikirim. Klien sangat puas!"
+              });
+              setScore(score + 100);
+            } else {
+              setFeedback({
+                success: false,
+                message: art.feedbackError
+              });
+              setLives(lives - 1);
+            }
+            setGameState('evaluation');
+          };
+
+          const nextOrder = () => {
+            if (lives <= 0) {
+              setGameState('gameover');
+            } else {
+              setDay(day + 1);
+              setSelectedMaterials([]);
+              setCurrentArtIndex(Math.floor(Math.random() * ARTWORKS.length));
+              setGameState('playing');
+            }
+          };
+
+          // --- UI COMPONENTS ---
+          const PopArtButton = ({ children, onClick, className = "", disabled = false }) => (
+            <button 
+              onClick={onClick}
+              disabled={disabled}
+              className={`
+                px-6 py-3 font-bold uppercase tracking-wider text-black border-4 border-black 
+                shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] 
+                transition-all duration-150
+                ${disabled ? 'opacity-50 cursor-not-allowed translate-y-[2px] translate-x-[2px] shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]' : 'hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[10px_10px_0px_0px_rgba(0,0,0,1)] active:translate-y-[4px] active:translate-x-[4px] active:shadow-none'}
+                ${className}
+              `}
+            >
+              {children}
+            </button>
+          );
+
+          const PopArtCard = ({ children, className = "" }) => (
+            <div className={`bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] ${className}`}>
+              {children}
+            </div>
+          );
+
+          // --- SCREENS ---
+          if (gameState === 'intro') {
+            return (
+              <div className="min-h-screen bg-yellow-400 p-8 flex flex-col items-center justify-center font-sans overflow-hidden relative">
+                <div className="absolute inset-0 opacity-20 pointer-events-none" style={{ backgroundImage: 'radial-gradient(#000 2px, transparent 2px)', backgroundSize: '20px 20px' }}></div>
+                
+                <div className="z-10 text-center max-w-2xl flex flex-col items-center">
+                  <div className="flex flex-col items-center justify-center gap-2 mb-6">
+                    <img 
+                      src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQHjVP89EmhemqPCMSNOFCv6wpq9jzs6DWo4g&s" 
+                      alt="Serrum Logo" 
+                      className="h-28 w-auto filter drop-shadow-[4px_4px_0px_rgba(0,0,0,0.5)]"
+                      style={{ mixBlendMode: 'multiply' }} 
+                    />
+                    <h1 className="text-5xl md:text-6xl font-black text-pink-500 tracking-tighter drop-shadow-[4px_4px_0px_rgba(0,0,0,1)] text-center leading-tight" style={{ WebkitTextStroke: '2px black' }}>
+                      SERRUM <br/> ARTHANDLING
+                    </h1>
+                  </div>
+                  <PopArtCard className="p-8 mb-8 bg-cyan-200 transform rotate-[-2deg]">
+                    <h2 className="text-2xl font-bold mb-4 uppercase border-b-4 border-black pb-2">Buku Panduan Staf</h2>
+                    <p className="text-lg font-bold mb-2">Tugasmu: Kemas karya seni klien dengan AMAN.</p>
+                    <ul className="text-left font-medium text-black/80 space-y-2 list-disc pl-6 mb-4">
+                      <li>Pilih material packing yang tepat berdasarkan jenis karya.</li>
+                      <li>Terdapat <b>50 antrean karya</b> yang harus dikerjakan!</li>
+                      <li>Salah packing = Karya rusak = Nyawa berkurang!</li>
+                    </ul>
+                    <div className="bg-yellow-300 p-3 border-2 border-black font-bold flex flex-wrap gap-2 justify-between items-center">
+                      <span>Nyawa Awal: ❤️❤️❤️</span>
+                      <span>Target: Skor Tertinggi!</span>
+                    </div>
+                  </PopArtCard>
+                  
+                  <PopArtButton onClick={startGame} className="bg-pink-500 text-white text-2xl px-12 py-4">
+                    MULAI SHIFT KERJA!
+                  </PopArtButton>
+                </div>
+              </div>
+            );
+          }
+
+          if (gameState === 'gameover') {
+            return (
+              <div className="min-h-screen bg-red-500 p-8 flex flex-col items-center justify-center font-sans">
+                <div className="absolute inset-0 opacity-20 pointer-events-none" style={{ backgroundImage: 'radial-gradient(#000 2px, transparent 2px)', backgroundSize: '20px 20px' }}></div>
+                <div className="z-10 text-center">
+                  <h1 className="text-6xl font-black text-yellow-300 mb-6 drop-shadow-[6px_6px_0px_rgba(0,0,0,1)]" style={{ WebkitTextStroke: '2px black' }}>
+                    DIPECAT!
+                  </h1>
+                  <PopArtCard className="p-8 mb-8 bg-white max-w-md mx-auto">
+                    <p className="text-xl font-bold mb-4">Kamu terlalu banyak merusak karya klien!</p>
+                    <p className="text-3xl font-black text-pink-500 mb-4">Skor Akhir: {score}</p>
+                    <p className="text-lg font-bold text-gray-600">Total Shift: {day} Hari</p>
+                  </PopArtCard>
+                  <PopArtButton onClick={startGame} className="bg-cyan-400">
+                    MELAMAR KERJA LAGI
+                  </PopArtButton>
+                </div>
+              </div>
+            );
+          }
+
+          const currentArt = ARTWORKS[currentArtIndex];
+
+          return (
+            <div className="min-h-screen bg-pink-100 p-4 md:p-8 font-sans text-black relative">
+              <div className="absolute inset-0 opacity-10 pointer-events-none" style={{ backgroundImage: 'radial-gradient(#000 2px, transparent 2px)', backgroundSize: '20px 20px' }}></div>
+              
+              {/* HEADER STATUS */}
+              <header className="relative z-10 flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+                <div className="bg-yellow-400 border-4 border-black px-4 py-2 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transform -skew-x-6 flex items-center gap-3 w-full md:w-auto justify-center">
+                  <img 
+                    src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQHjVP89EmhemqPCMSNOFCv6wpq9jzs6DWo4g&s" 
+                    alt="Serrum Logo" 
+                    className="h-10 w-auto"
+                    style={{ mixBlendMode: 'multiply' }} 
+                  />
+                  <h1 className="text-xl md:text-2xl font-black italic">SERRUM ARTHANDLING</h1>
+                </div>
+                <div className="flex flex-wrap justify-center gap-2 md:gap-4 w-full md:w-auto">
+                  <div className="bg-white border-4 border-black px-3 md:px-4 py-2 font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                    ORDER: {day}/50
+                  </div>
+                  <div className="bg-cyan-300 border-4 border-black px-3 md:px-4 py-2 font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                    SKOR: {score}
+                  </div>
+                  <div className="bg-red-400 border-4 border-black px-3 md:px-4 py-2 font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] text-white">
+                    NYAWA: {'❤️'.repeat(lives)}
+                  </div>
+                </div>
+              </header>
+
+              {/* MAIN GAME AREA */}
+              <div className="relative z-10 grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
+                
+                {/* LEFT PANEL: ORDER KERJA */}
+                <div className="lg:col-span-1 space-y-6">
+                  <PopArtCard className="p-6 bg-white flex flex-col items-center text-center relative overflow-hidden">
+                    <div className="absolute top-0 left-0 bg-black text-yellow-400 font-bold px-3 py-1 text-sm border-b-4 border-r-4 border-black">
+                      ORDER MASUK
+                    </div>
+                    <div className="text-8xl mt-8 mb-4 filter drop-shadow-[4px_4px_0px_rgba(0,0,0,0.2)]">
+                      {currentArt.icon}
+                    </div>
+                    <h2 className="text-2xl font-black mb-2 uppercase">{currentArt.name}</h2>
+                    <span className="inline-block bg-pink-400 text-white font-bold px-2 py-1 border-2 border-black mb-4 transform rotate-2">
+                      Kategori: {currentArt.type}
+                    </span>
+                    <div className="bg-gray-100 border-2 border-dashed border-gray-400 p-4 text-left w-full font-medium">
+                      <span className="text-red-500 font-bold block mb-1">CATATAN KONDISI:</span>
+                      {currentArt.desc}
+                    </div>
+                  </PopArtCard>
+                </div>
+
+                {/* RIGHT PANEL: INVENTORY & ACTION */}
+                <div className="lg:col-span-2 space-y-6">
+                  <PopArtCard className="p-4 md:p-6 bg-yellow-100">
+                    <h3 className="text-lg md:text-xl font-black uppercase mb-4 border-b-4 border-black pb-2 flex flex-col md:flex-row md:justify-between items-start md:items-center gap-2">
+                      <span>Gudang Material</span>
+                      <span className="text-xs md:text-sm font-bold text-gray-500 bg-white px-2 py-1 border-2 border-black">Pilih Material Sesuai Urutan!</span>
+                    </h3>
+                    
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+                      {MATERIALS.map(mat => {
+                        const isSelected = selectedMaterials.includes(mat.id);
+                        const orderIndex = selectedMaterials.indexOf(mat.id) + 1;
+                        return (
+                          <button
+                            key={mat.id}
+                            onClick={() => gameState === 'playing' && toggleMaterial(mat.id)}
+                            className={`
+                              relative p-3 md:p-4 border-4 border-black flex flex-col items-center justify-center text-center transition-transform min-h-[120px]
+                              ${mat.color} 
+                              ${isSelected ? 'shadow-none translate-y-[4px] translate-x-[4px] bg-opacity-80' : 'shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-1 hover:-translate-x-1'}
+                              ${gameState !== 'playing' ? 'opacity-50 cursor-not-allowed' : ''}
+                            `}
+                          >
+                            {isSelected && (
+                              <div className="absolute -top-3 -right-3 bg-red-500 text-white w-8 h-8 rounded-full border-2 border-black flex items-center justify-center font-black text-xl z-20">
+                                {orderIndex}
+                              </div>
+                            )}
+                            <span className="text-3xl md:text-4xl mb-2 filter drop-shadow-[2px_2px_0px_rgba(0,0,0,0.3)]">{mat.icon}</span>
+                            <span className="font-bold text-xs md:text-sm uppercase leading-tight">{mat.name}</span>
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </PopArtCard>
+
+                  {/* ACTION BUTTON */}
+                  <div className="flex justify-end">
+                    <PopArtButton 
+                      onClick={packArtwork} 
+                      disabled={selectedMaterials.length === 0 || gameState !== 'playing'}
+                      className="bg-cyan-400 text-xl md:text-2xl w-full md:w-auto py-4 md:py-6 px-8 md:px-12 animate-pulse hover:animate-none"
+                    >
+                      📦 KEMAS & KIRIM!
+                    </PopArtButton>
+                  </div>
+                </div>
+
+              </div>
+
+              {/* EVALUATION OVERLAY */}
+              {gameState === 'evaluation' && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm overflow-y-auto">
+                  <PopArtCard className={`max-w-2xl w-full p-6 md:p-8 text-center transform scale-100 md:scale-110 transition-transform my-auto ${feedback.success ? 'bg-green-300' : 'bg-red-300'}`}>
+                    <div className="text-5xl md:text-6xl mb-4">
+                      {feedback.success ? '💥 PANGKAS HABIS! 💥' : '⚠️ BENCANA! ⚠️'}
+                    </div>
+                    <h2 className="text-2xl md:text-3xl font-black uppercase mb-4 shadow-black drop-shadow-[2px_2px_0px_rgba(255,255,255,1)]">
+                      {feedback.success ? 'Packing Berhasil!' : 'Packing Gagal!'}
+                    </h2>
+                    <div className="bg-white border-4 border-black p-4 mb-6 text-lg md:text-xl font-bold">
+                      {feedback.message}
+                    </div>
+                    
+                    <div className="mb-6 bg-black/10 p-4 border-2 border-black text-left">
+                      <p className="font-bold mb-2">SOP yang Benar untuk {currentArt.name}:</p>
+                      <div className="flex flex-wrap gap-2">
+                        {currentArt.correct.map((id, idx) => {
+                          const mat = MATERIALS.find(m => m.id === id);
+                          return (
+                            <span key={idx} className="bg-white border-2 border-black px-2 py-1 font-bold text-xs md:text-sm flex items-center gap-1">
+                              <span>{idx + 1}.</span> {mat.icon} {mat.name}
+                            </span>
+                          )
+                        })}
+                      </div>
+                    </div>
+
+                    <PopArtButton onClick={nextOrder} className="bg-yellow-400 w-full text-lg md:text-xl">
+                      LANJUT ORDER BERIKUTNYA ➔
+                    </PopArtButton>
+                  </PopArtCard>
+                </div>
+              )}
+            </div>
+          );
+        }
+
+        // --- RENDER APP KE HTML ---
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
